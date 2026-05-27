@@ -352,6 +352,322 @@ DynamoDB tables with PITR enabled and S3 buckets with content may need manual cl
 - [AI-DLC Workflows Repo](https://github.com/awslabs/aidlc-workflows)
 - [Method Definition Paper](https://prod.d13rzhkk8cj2z0.amplifyapp.com/)
 
+# AI-DLC Demo Prompts — URL Shortener API - Enhanced Operations Prompts
+
+These prompts walk through the full AI-DLC lifecycle: Inception → Construction → Operations. Each prompt is self-contained and can be run sequentially in a fresh AI chat session.
+
+---
+
+## Universal Instructions (send first, before any prompt)
+
+```
+Universal instructions for this session (apply to every prompt that follows):
+
+1. Project folder: Before doing anything else, ask me for a project name. Create a single top-level folder with that name and place ALL artifacts inside it — both the aidlc/ documentation tree and the source code (src/, infra/, tests/, etc.). Nothing should be created outside this project folder.
+
+2. Folder layout inside the project folder:
+   - aidlc/                  — all methodology artifacts (inception, construction, operations, prompts.md)
+   - src/                    — application code
+   - infra/                  — infrastructure as code
+   - tests/                  — tests
+
+3. Prompt audit trail: All prompts must be stored verbatim, in order, in aidlc/prompts.md. For every prompt I send you, append it to that file before doing anything else.
+
+4. Create the aidlc/ folder and prompts.md file if they do not already exist.
+
+5. Folder naming: Use aidlc/ (no leading dot, not hidden). Never create .aidlc/ or aidlc-docs/ — keep folder names consistent across the whole session.
+
+6. Confirm your understanding of these universal instructions now, and ask me for the project name before I send the first prompt.
+```
+
+---
+
+## Inception
+
+### Prompt 1.1 — User Stories
+
+```
+Your Role: You are an expert product manager and are tasked with creating well defined user stories that become the contract for developing the system as mentioned in the Task section below. Plan for the work ahead and write your steps in an md file (aidlc/inception/stories_plan.md) with checkboxes for each step in the plan. If any step needs my clarification, add a note in the step to get my confirmation. Do not make critical decisions on your own. Upon completing the plan, ask for my review and approval. After my approval, you can go ahead to execute the same plan one step at a time. Once you finish each step, mark the checkboxes as done in the plan.
+
+Your Task: Build user stories for the high-level requirement as described here:
+
+Build a serverless URL shortener API on AWS. The API exposes three endpoints:
+- POST /shorten with a long URL returns a short code
+- GET /{code} returns a 301 redirect to the original URL
+- GET /{code}/stats returns the click count for the code
+
+Target 100 req/sec, p99 under 300ms, single region us-east-1. API only — no frontend.
+
+For each user story, ensure acceptance criteria includes:
+- Functional requirements
+- API contract requirements (request/response shape, status codes)
+- Non-functional requirements
+
+Create an aidlc/inception/ directory for the stories_plan.md file and write the user stories to user_stories.md in the aidlc/inception/ directory.
+```
+
+### Prompt 1.2 — Units
+
+```
+Your Role: You are an expert software architect and are tasked with grouping the user stories into units that can be built independently as mentioned in the Task section below. Plan for the work ahead and write your steps in an md file (aidlc/inception/units_plan.md) with checkboxes for each step in the plan. If any step needs my clarification, add a note in the step to get my confirmation. Do not make critical decisions on your own. Upon completing the plan, ask for my review and approval. After my approval, you can go ahead to execute the same plan one step at a time. Once you finish each step, mark the checkboxes as done in the plan.
+
+Your Task: Refer to the user stories in aidlc/inception/user_stories.md file. For this demo, group all user stories into a single cohesive unit named "url-shortener-api" covering the three endpoints (shorten, redirect, stats). Write the unit's user stories and acceptance criteria to aidlc/inception/units/url-shortener-api.md. Clearly identify the API contract for each endpoint. Do not start the technical systems design yet.
+```
+
+---
+
+## Construction
+
+### Prompt 2.1 — Domain Model
+
+```
+Your Role: You are an expert software architect and are tasked with designing the domain model using Domain Driven Design for the unit of the software system. Refer to the Task section for more details.
+
+Plan for the work ahead and write your steps in an md file (aidlc/construction/domain_design_plan.md) with checkboxes for each step in the plan. If any step needs my clarification, add a note in the step to get my confirmation. Do not make critical decisions on your own. Upon completing the plan, ask for my review and approval. After my approval, you can go ahead to execute the same plan one step at a time. Once you finish each step, mark the checkboxes as done in the plan.
+
+Your Task: Refer to aidlc/inception/units/url-shortener-api.md for the unit and corresponding user stories. Design the Domain Driven Design domain model with all tactical components including aggregates, entities, value objects, domain events, policies, repositories, and domain services. Create a new aidlc/construction/ folder, write the design details in aidlc/construction/url-shortener-api/domain_model.md.
+```
+
+### Prompt 2.2 — Implementation
+
+```
+Your Role: You are an expert software engineer and are tasked with creating a plan to implement a scalable API according to a Domain Driven Design domain model. Refer to the Task section for more details.
+
+Plan for the work ahead and write your steps in an md file (aidlc/construction/tasks_plan.md) with checkboxes for each step in the plan. If any step needs my clarification, add a note in the step to get my confirmation. Do not make critical decisions on your own. Upon completing the plan, ask for my review and approval. After my approval, you can go ahead to execute the same plan one step at a time. Once you finish each step, mark the checkboxes as done in the plan.
+
+Your Task: Refer to aidlc/inception/units/url-shortener-api.md for the unit, and aidlc/construction/url-shortener-api/domain_model.md for the domain model.
+
+Generate a complete API implementation including:
+- Python Lambda handlers — one per endpoint — in src/handlers/
+- Domain layer: aggregates, entities, repositories, services — in src/domain/
+- DynamoDB repository implementation in src/infrastructure/
+- Unit tests in tests/
+- Directory structure with clean separation between handlers, domain, and infrastructure
+- A README.md with local run instructions using SAM local or a Python test harness
+
+Keep it minimal — one file per concern, no unnecessary frameworks.
+```
+
+---
+
+## Operations
+
+### Prompt 3.1 — Deployment Planning and Execution
+
+```
+Your Role: You are an experienced Cloud Architect. Before you start the task as mentioned below, please do the planning and write your steps in a aidlc/operations/deployment_plan.md file with checkboxes against each step in the plan. If any step needs my clarification, please add it to the step to interact with me and get my confirmation. Do not make critical decisions on your own. Once you produce the plan, ask for my review and approval. After my approval, you can go ahead to execute the same plan one step at a time. Once you finish each step, mark the checkboxes as done in the plan.
+
+Task: Refer to the unit in aidlc/inception/units/, the domain model and design in aidlc/construction/, and the source code in src/. Complete the following:
+- Generate an end-to-end deployment of the API on AWS using Infrastructure as Code with CDK in TypeScript
+- Stack components: API Gateway + Lambda (one function per endpoint) + DynamoDB
+- Name the CDK stack exactly `UrlShortenerApiStack` (so cleanup commands target only this stack)
+- Document all prerequisites for the deployment in aidlc/operations/prerequisites.md
+- Produce a deployment runbook in aidlc/operations/deployment_runbook.md with concrete `cdk deploy UrlShortenerApiStack` commands
+
+Once I approve the plan:
+- Follow the best practice of clean, simple, explainable coding
+- Validate the deployment by creating a validation plan (curl tests against the three endpoints), generate a validation report at aidlc/operations/validation_report.md
+- Review the validation report and fix all identified issues, then update the report
+```
+
+### Prompt 3.2 — Observability (Metrics, Logging, Alarms, Dashboards)
+
+```
+Your Role: You are an experienced Site Reliability Engineer. Before you start the task below, please plan and write your steps in aidlc/operations/observability_plan.md with checkboxes against each step. If any step needs my clarification, add it to the step to get my confirmation. Do not make critical decisions on your own. Produce the plan, ask for my review and approval. After approval, execute the plan one step at a time and tick the checkboxes as you go.
+
+Task: Refer to the NFRs in aidlc/inception/user_stories.md (100 req/sec, p99 < 300ms) and the deployed stack from aidlc/operations/deployment_plan.md. Add production-grade observability to the existing CDK stack:
+
+Structured Logging:
+- Enable structured JSON logging in all Lambda handlers (request_id, endpoint, status_code, duration_ms, error details if applicable)
+- Include fault-isolation fields (function name, region) for operational triage
+
+Metrics & Dashboard:
+- A CloudWatch dashboard with widgets for: API request count, p99 latency, 4xx error rate, 5xx error rate, DynamoDB consumed capacity
+- Metrics should support per-endpoint breakdown where possible
+
+Alarms:
+- API 5xx rate > 1% over 5 minutes → SNS notification
+- p99 latency > 300ms sustained for 5 minutes → SNS notification
+- DynamoDB throttled requests > 0 → SNS notification
+
+Alarm Design Principles:
+- Alarms should detect (something is wrong), assess (how bad is it), and diagnose (where is it)
+- Use composite alarms or multiple alarms to distinguish between partial and total outage
+
+Document the setup in aidlc/operations/observability.md including: what signals are collected, where to find them, and how to query structured logs. Validate by hitting the API and confirming metrics appear. Record results in aidlc/operations/observability_validation.md.
+```
+
+### Prompt 3.3 — Incident Response (Severity, Runbooks, Postmortem)
+
+```
+Your Role: You are an experienced Incident Commander. Before you start the task below, please plan and write your steps in aidlc/operations/incident_response_plan.md with checkboxes against each step. If any step needs my clarification, add it to the step to get my confirmation. Do not make critical decisions on your own. Produce the plan, ask for my review and approval. After approval, execute the plan one step at a time and tick the checkboxes as you go.
+
+Task: Refer to the architecture in aidlc/construction/ and the alarms from aidlc/operations/observability.md. Produce:
+
+Severity Matrix (aidlc/operations/severity_matrix.md):
+- SEV1/SEV2/SEV3 definitions with impact criteria, response times, escalation paths
+- Map each alarm to a severity level
+
+Runbooks (aidlc/operations/runbooks/):
+- dynamodb_throttling.md
+- lambda_errors.md
+- api_latency_degradation.md
+
+Each runbook MUST have these sections:
+1. Detection signal — which alarm/metric triggers this runbook
+2. Immediate mitigation — first 5 minutes, stop the bleeding
+3. Diagnosis steps — structured investigation with concrete CLI commands
+4. Recovery steps — fix the root cause
+5. Verification — confirm the system is healthy
+6. Escalation criteria — when to escalate to next severity level
+
+Runbook Design Principles:
+- Every runbook must be executable by an on-call engineer who has never seen this system before
+- Commands must be copy-pasteable (no placeholders without explanation)
+- Include expected output for each diagnostic command so the operator knows what "good" looks like
+
+Postmortem Template (aidlc/operations/postmortem_template.md):
+- Blameless format: timeline, impact, root cause, contributing factors, action items
+- Include a "what went well" section to reinforce good practices
+- Action items must have owner, priority, and due date fields
+```
+
+### Prompt 3.4 — Recovery & Data Protection
+
+```
+Your Role: You are an experienced Platform Engineer. Before you start the task below, please plan and write your steps in aidlc/operations/recovery_plan.md with checkboxes against each step. If any step needs my clarification, add it to the step to get my confirmation. Do not make critical decisions on your own. Produce the plan, ask for my review and approval. After approval, execute the plan one step at a time and tick the checkboxes as you go.
+
+Task: Using the deployment and architecture artifacts already produced, implement and document recovery capabilities:
+
+Backup & Restore (aidlc/operations/backup_restore.md):
+- Enable DynamoDB Point-in-Time Recovery (PITR) in the CDK stack
+- Document a restore drill with concrete steps (restore to new table, verify data, swap)
+- Define Recovery Point Objective (RPO) and Recovery Time Objective (RTO) for this system
+- Include a quarterly drill schedule
+
+Instance-Level Recovery:
+- Document what happens when a single Lambda invocation fails (built-in retry behavior)
+- Document API Gateway retry and throttling behavior
+
+Service-Level Recovery:
+- Document the procedure if the entire DynamoDB table is accidentally deleted
+- Document the procedure if a Lambda function is misconfigured (rollback via CDK)
+
+Produce a recovery summary table mapping failure scenarios to recovery procedures and expected RTO/RPO.
+```
+
+### Prompt 3.5 — Maintenance, Patching & Cost Management
+
+```
+Your Role: You are an experienced Platform Engineer. Before you start the task below, please plan and write your steps in aidlc/operations/maintenance_plan.md with checkboxes against each step. If any step needs my clarification, add it to the step to get my confirmation. Do not make critical decisions on your own. Produce the plan, ask for my review and approval. After approval, execute the plan one step at a time and tick the checkboxes as you go.
+
+Task: Using the deployment, observability, and incident response artifacts already produced, generate:
+
+Patching Policy (aidlc/operations/patching.md):
+- Lambda runtime upgrade cadence and process
+- Python dependency update policy with Dependabot configuration
+- Security patch SLA by CVSS severity (Critical: 24hr, High: 48hr, Medium: 7d, Low: next cycle)
+- CDK and Node.js dependency update cadence
+
+Cost Management (aidlc/operations/cost_management.md):
+- Add a monthly AWS Budget alarm to the CDK stack (scoped appropriately for a demo)
+- Document expected monthly cost breakdown by service
+- Include cost optimization recommendations
+- Define cost anomaly detection thresholds
+
+Operational Hygiene:
+- Log retention policy (set CloudWatch log retention to 30 days in CDK)
+- Tag all resources with Project, Environment, and Owner tags in CDK
+- Document the teardown procedure for clean demo cleanup
+```
+
+### Prompt 3.6 — Production Readiness Review (Blocking Gate)
+
+```
+Your Role: You are a senior Production Readiness Reviewer running a blocking go-live gate. The system cannot be marked production ready until every item passes. Before you start the task below, please plan and write your steps in aidlc/operations/prr_plan.md with checkboxes against each step. If any step needs my clarification, add it to the step to get my confirmation. Do not make critical decisions on your own. Produce the plan, ask for my review and approval. After approval, execute the plan one step at a time and tick the checkboxes as you go.
+
+Task: Audit all artifacts under aidlc/ and src/ against a production readiness checklist. Produce aidlc/operations/production_readiness_checklist.md as a table with one row per item, marked PASS / FAIL / GAP, with evidence (file path or artifact reference) and a remediation note for anything that is not PASS.
+
+Checklist Categories:
+
+Architecture & Design:
+- Architecture documented and reviewed
+- Domain model documented with bounded contexts identified
+
+Security:
+- IAM least privilege (no wildcard permissions)
+- Encryption at rest enabled on all data stores
+- No secrets or credentials in source code
+- API input validation on all endpoints
+
+Reliability:
+- All alarms tested and routing to notification channel
+- Retry behavior documented for each integration point
+- DynamoDB capacity model appropriate for expected load
+- Graceful error handling (no unhandled exceptions reaching the client)
+
+Performance:
+- Smoke test confirms all endpoints respond under p99 target
+- Cold start impact assessed and documented
+
+Observability:
+- Dashboard live with all required widgets
+- All alarms routed to SNS with confirmed subscriber
+- Structured logs flowing with correlation IDs
+- Log retention policy configured
+
+Operability:
+- Runbook exists for every alarm (alarm → runbook mapping documented)
+- Postmortem template ready
+- On-call escalation path defined
+
+Data Protection:
+- DynamoDB PITR enabled and verified
+- Restore drill documented with concrete steps
+- RPO/RTO defined and achievable
+
+Cost:
+- Budget alarm active
+- Expected cost documented
+- Teardown procedure documented
+
+Compliance Gate:
+- Do not mark the system ready until ALL items are PASS
+- If any item is FAIL or GAP, list the specific fix needed
+- For each GAP, classify as "design gap" (architecture change needed) or "implementation gap" (code fix needed)
+- Stop and report findings — do not auto-fix without approval
+```
+
+### Prompt 3.7 — Debug (Optional, if something breaks)
+
+```
+Your Role: You are an expert software engineer tasked with debugging issues with the demo API.
+
+Resolve the issue below and any other issues to ensure the API works end-to-end. Update aidlc/operations/validation_report.md with the fix.
+
+Issue:
+[paste error message or describe failing behavior]
+```
+
+---
+
+## Quick Reference
+
+| Phase | Prompt | Role | Key Output |
+|-------|--------|------|------------|
+| Inception | 1.1 | Product Manager | User stories with acceptance criteria |
+| Inception | 1.2 | Software Architect | Unit definition with API contracts |
+| Construction | 2.1 | Software Architect | DDD domain model |
+| Construction | 2.2 | Software Engineer | Working code + tests |
+| Operations | 3.1 | Cloud Architect | CDK deployment + validation |
+| Operations | 3.2 | SRE | Observability (logs, metrics, alarms, dashboard) |
+| Operations | 3.3 | Incident Commander | Severity matrix, runbooks, postmortem template |
+| Operations | 3.4 | Platform Engineer | Recovery procedures, PITR, RTO/RPO |
+| Operations | 3.5 | Platform Engineer | Patching, cost management, operational hygiene |
+| Operations | 3.6 | PRR Reviewer | Production readiness gate (blocking) |
+| Operations | 3.7 | Software Engineer | Debug & fix (on-demand) |
+
+
 ## License
 
 MIT-0 (matching the upstream AI-DLC repo).
