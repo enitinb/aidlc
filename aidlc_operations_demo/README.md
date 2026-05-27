@@ -274,6 +274,48 @@ Issue:
 
 ---
 
+# About This Demo
+
+This project demonstrates the **AI-DLC (AI Development Lifecycle)** methodology applied end-to-end — from requirements through production operations — using AI-assisted development.
+
+## What's Demonstrated
+
+| Phase | What You'll See |
+|-------|----------------|
+| **Inception** | Structured user stories with acceptance criteria, API contracts, and NFRs |
+| **Construction** | Domain-Driven Design model → clean Python implementation → unit tests |
+| **Operations** | Full production readiness: deployment, observability, incident response, recovery, cost management, and a blocking PRR gate |
+
+## Operations Highlights
+
+The operations phase showcases production-grade practices:
+- **Observability**: CloudWatch dashboard, structured JSON logging, 5xx alarm → SNS
+- **Incident Response**: Severity matrix, executable runbooks, blameless postmortem template
+- **Recovery**: DynamoDB PITR with documented restore drill
+- **Cost Guardrails**: AWS Budget alarm with threshold notifications
+- **Production Readiness**: 16-item checklist audited against live infrastructure
+
+## Going Deeper
+
+For more depth, the operations prompts can be extended to include:
+- Fault-isolation fields in logs and metrics (AZ-aware, per-function breakdown)
+- Alarm design principles: detect → assess → diagnose hierarchy
+- RPO/RTO definitions with failure scenario → recovery procedure mapping
+- Composite alarms to distinguish partial vs total outage
+- Gap classification in PRR (design gap vs implementation gap) with automated rework loops
+- Canary-based synthetic monitoring for proactive detection
+
+## Key Principle
+
+Every prompt follows the same pattern:
+1. **Plan** — write steps with checkboxes, ask for clarification
+2. **Approve** — human reviews and approves before execution
+3. **Execute** — complete one step at a time, mark done
+4. **Validate** — verify against live infrastructure
+
+This ensures the AI never makes critical decisions autonomously while still doing the heavy lifting.
+
+
 ## Methodology principles in these prompts
 
 Every prompt follows the same five-step pattern lifted from AI-DLC:
